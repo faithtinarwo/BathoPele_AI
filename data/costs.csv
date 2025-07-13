@@ -1,0 +1,5 @@
+daily_cost,avg_patient_cost,medication_cost,staff_cost,facility_cost,date,total_cost,patient_count,amount,patient_name,description,category
+,,,,,2025-07-13,,,1500,"Fatima Hussein,",Treatment for Hypertension (High Blood Pressure),Consultation
+,,,,,2025-07-13,,,150,"Fatima Hussein,",Treatment for Hypertension,Consultation
+,,,,,2025-07-13,,,510,"Fatima Hussein,",Treatment for Type 2 Diabetes Mellitus,Consultation
+,,,,,2025-07-13,,,0,"Fatima Hussein,",Treatment for Asthma,Consultation

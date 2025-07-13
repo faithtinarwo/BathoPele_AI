@@ -1,0 +1,6 @@
+name,nationality,doc_type,doc_number,legal_status,result,timestamp
+Thabo Radebe,South African,RSA ID,8906257089089,Valid,✅ Eligible for Free Public Healthcare,2025-07-10 08:30
+Tariro Chikafu,Zimbabwe,Passport,ZIM12345,Valid,🟡 Eligible for Subsidized or Emergency Care,2025-07-10 09:00
+Chifundo Banda,Malawi,Passport,MWI67890,Invalid,🔴 Payment Required or Refer to Admin,2025-07-10 09:45
+Ayaan Warsame,Somalia,Asylum,SOM24680,Valid,🟡 Eligible for Subsidized or Emergency Care,2025-07-10 10:10
+Ahmed Ali,Bangladesh,Passport,BD123456,Invalid,🔴 Payment Required or Refer to Admin,2025-07-10 11:00

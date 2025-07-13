@@ -1,0 +1,3 @@
+id,patient_id,hospital,visit_date,visit_type,cost
+1,1,Joburg General,2023-07-15,Consultation,450.00
+2,2,Ekurhuleni District,2023-07-20,Emergency,1200.00

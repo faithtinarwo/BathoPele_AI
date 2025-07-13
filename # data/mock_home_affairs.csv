@@ -1,0 +1,12 @@
+full_name,nationality,doc_type,doc_number,legal_status
+Lerato Mofokeng,South African,RSA ID,8701011234082,Valid
+Mike Mdlalose,South Africa,Passport,8906251234089,Valid
+Robyn Du Ploy,South Africa,Asylum,9503145672081,Valid
+Femi Okonkwo,Nigeria,Permit,P7891234,Valid
+Tariro Chikafu,Zimbabwe,Permit,ZIM12345,Valid
+Chifundo Banda,Malawi,Passport,MWI67890,Invalid
+Ayaan Warsame,Somalia,Asylum,SOM24680,Valid
+Md. Faisal Rahman,Bangladesh,Passport,BD123456,Invalid
+Teboho Mahlatsi,Lesotho,Passport,LS456789,Valid
+Ngozi Okafor,Nigeria,Passport,NG123789,Invalid
+Jean-Baptiste Mbala,Congo,Passport,CG987654,Valid

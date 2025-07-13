@@ -1,0 +1,4 @@
+id_number,passport_number,nationality,full_name,legal_status
+9001011234567,,South African,Lerato Mofokeng,Valid
+,ZW123456,Zimbabwean,Tariro Chikafa,Valid
+,MW789012,Malawian,Chifundo Banda,Invalid

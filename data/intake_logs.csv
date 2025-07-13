@@ -1,0 +1,6 @@
+timestamp,name,nationality,doc_type,doc_number,legal_status,result
+2025-07-12 14:15:48,Tendai Biti,Zimbabwean,Passport,ZW2023AB001,Verification error: [Errno 2] No such file or directory: 'data/mock_home_affairs.csv',⚠️ Needs Manual Review
+2025-07-12 14:27:11,Tendai Biti,South African,RSA ID,ZW2023AB001,Invalid (Invalid format),⚠️ Needs Manual Review
+2025-07-12 14:28:11,Lindiwe Sisulu,South African,RSA ID,5904045055083,Invalid (Not found in records),⚠️ Needs Manual Review
+2025-07-12 14:55:07,Joyce Banda,South African,Passport,MW2023KL006,Invalid (Invalid format),⚠️ Needs Manual Review
+2025-07-12 14:55:51,Julius Malema,South African,RSA ID,8103035054084,Invalid (Not found in records),⚠️ Needs Manual Review

@@ -1,0 +1,101 @@
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error processing patient: module 'streamlit' has no attribute 'experimental_rerun'
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error displaying resource data: 'NaT' is of type <class 'pandas._libs.tslibs.nattype.NaTType'>, which is not an accepted type. value only accepts: int, float, str, or None. Please convert the value to an accepted type.
+ERROR:root:Error displaying resource data: division by zero
+ERROR:root:Error displaying resource data: division by zero
+ERROR:root:Error displaying resource data: division by zero
+ERROR:root:Error loading data: 'available_beds'
+ERROR:root:Error loading data: 'available_beds'
+ERROR:root:Error loading data: 'available_beds'
+Traceback (most recent call last):
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'available_beds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\mphoh\Documents\BathoPele_AI\app.py", line 181, in load_data
+    resources_df['available_beds'] = pd.to_numeric(resources_df['available_beds'], errors='coerce').fillna(0)
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'available_beds'
+ERROR:root:Error loading data: 'available_beds'
+Traceback (most recent call last):
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'available_beds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\Users\mphoh\Documents\BathoPele_AI\app.py", line 123, in load_data
+    resources_df['available_beds'] = pd.to_numeric(resources_df['available_beds'], errors='coerce').fillna(0)
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'available_beds'
+ERROR:root:Error loading data: 'available_beds'
+Traceback (most recent call last):
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'available_beds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\mphoh\Documents\BathoPele_AI\app.py", line 123, in load_data
+    resources_df['available_beds'] = pd.to_numeric(resources_df['available_beds'], errors='coerce').fillna(0)
+                                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\mphoh\Documents\BathoPele_AI\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'available_beds'
+ERROR:root:Error loading data: 'available_beds'
+ERROR:root:Error processing patient: `st.button()` can't be used in an `st.form()`.
+
+For more information, refer to the
+[documentation for forms](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form).
+
+ERROR:root:Error processing patient: `st.button()` can't be used in an `st.form()`.
+
+For more information, refer to the
+[documentation for forms](https://docs.streamlit.io/develop/api-reference/execution-flow/st.form).
+
+ERROR:root:Error loading data: load_all_data() takes 0 positional arguments but 1 was given
+ERROR:root:Page display error: display_dashboard() takes 4 positional arguments but 5 were given
+ERROR:root:Page display error: display_dashboard() takes 4 positional arguments but 5 were given
+ERROR:root:Page display error: name 'display_patient_intake' is not defined
+ERROR:root:Page display error: name 'display_patient_search' is not defined
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
+ERROR:root:Error displaying cost data: '>=' not supported between instances of 'str' and 'datetime.datetime'
