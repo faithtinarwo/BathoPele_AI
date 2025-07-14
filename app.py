@@ -1,94 +1,14 @@
 import streamlit as st
-import pytz
-import os
-import hashlib
 import pandas as pd
-from datetime import datetime, timedelta
+import hashlib
 import logging
-from document_verifier import verify_document
-from data_loader import load_all_data, get_realtime_metrics
-from reporting import display_dashboard
+from datetime import datetime, timedelta
+import pytz
+from treatment_ai import generate_treatment_plan
+from resource_predictor import predict_resources
 
-# ====== CONFIGURATION ======
+# ====== CONSTANTS ======
 SA_TIMEZONE = pytz.timezone('Africa/Johannesburg')
-DATA_DIR = "data"
-os.makedirs(DATA_DIR, exist_ok=True)
-logging.basicConfig(filename='app_errors.log', level=logging.ERROR)
-
-# ====== DATA INITIALIZATION ======
-def initialize_data_files():
-    """Initialize all required data files with enhanced sample data"""
-    try:
-        # Patients database
-        patients_db = f"{DATA_DIR}/patients.csv"
-        if not os.path.exists(patients_db):
-            patients_columns = [
-                'name', 'dob', 'nationality', 'doc_type', 'doc_number', 
-                'medical_aid', 'conditions', 'timestamp', 'verified_by',
-                'result', 'legal_status', 'details'
-            ]
-            sample_patients = [
-                ['John Nkosi', '1985-05-15', 'South African', 'RSA ID', '8505151234088', 
-                 'GOLD123', 'Hypertension', '2023-10-01 09:30:00', 'admin', 
-                 'Valid', 'Valid', 'Automatically verified'],
-                ['Maria Molotsi', '1990-11-22', 'Mozambican', 'Passport', 'P12345678', 
-                 '', '', '2023-10-02 10:15:00', 'admin', 
-                 'Valid', 'Valid', 'Automatically verified'],
-                ['James Khumalo', '1978-03-30', 'South African', 'RSA ID', '7803305432087', 
-                 '', 'Diabetes', '2023-10-03 11:00:00', 'admin', 
-                 'Valid', 'Valid', 'Automatically verified']
-            ]
-            pd.DataFrame(sample_patients, columns=patients_columns).to_csv(patients_db, index=False)
-
-        # Visits database
-        visits_db = f"{DATA_DIR}/visits.csv"
-        if not os.path.exists(visits_db):
-            visits_columns = [
-                'patient_name', 'visit_date', 'hospital', 'visit_type', 'doctor',
-                'diagnosis', 'ward', 'bed_number', 'medication', 'medication_qty',
-                'cost', 'duration_minutes', 'treatment', 'notes'
-            ]
-            sample_visits = [
-                ['John Doe', '2023-10-01', 'Johannesburg General', 'Consultation', 'Dr Smith',
-                 'Hypertension', 'Outpatient', 'N/A', 'Lisinopril 10mg', '1',
-                 350, 30, 'Daily medication', 'Follow up in 3 months'],
-                ['Maria Garcia', '2023-10-02', 'Johannesburg General', 'Emergency', 'Dr Jones',
-                 'Fractured wrist', 'Emergency', 'E12', 'Ibuprofen 400mg', '2',
-                 1200, 45, 'Cast application', 'Return in 6 weeks']
-            ]
-            pd.DataFrame(sample_visits, columns=visits_columns).to_csv(visits_db, index=False)
-
-        # Enhanced resources database with proper sample data
-        resources_db = f"{DATA_DIR}/resources.csv"
-        if not os.path.exists(resources_db):
-            resources_columns = [
-                'hospital', 'ward', 'total_beds', 'available_beds', 
-                'medications', 'medication_stock', 'doctors', 'nurses',
-                'last_updated'
-            ]
-            sample_resources = [
-                ['Johannesburg General', 'Emergency', 50, 12, 'Paracetamol,Amoxicillin', '100,50', 'Dr TS Moreki,Dr M Gule', 'Nurse Amanda,Nurse Bongiwe', datetime.now().strftime('%Y-%m-%d')],
-                ['Johannesburg General', 'Pediatrics', 40, 8, 'Ibuprofen,Calpol', '75,60', 'Dr N Dwarka,Dr MF Kleinhans', 'Nurse Cathy,Nurse Dion', datetime.now().strftime('%Y-%m-%d')],
-                ['Cape Town Central', 'Surgery', 60, 15, 'Morphine,Antibiotics', '30,40', 'Dr BB Mbambela,Dr D Skete', 'Nurse Ellen,Nurse Fikile', datetime.now().strftime('%Y-%m-%d')],
-                ['Durban Coastal', 'Maternity', 35, 10, 'Pethidine,Oxytocin', '25,30', 'Dr GO Matlaga Khan,Dr P Naidoo', 'Nurse Gugu,Nurse Happy', datetime.now().strftime('%Y-%m-%d')]
-            ]
-            pd.DataFrame(sample_resources, columns=resources_columns).to_csv(resources_db, index=False)
-
-        # Costs database
-        costs_db = f"{DATA_DIR}/costs.csv"
-        if not os.path.exists(costs_db):
-            costs_columns = ['patient_name', 'date', 'description', 'amount', 'category']
-            sample_costs = [
-                ['John Nkosi', '2023-10-01', 'Hypertension consultation', 350, 'Consultation'],
-                ['Maria Molotsi', '2023-10-02', 'Wrist fracture treatment', 1200, 'Emergency']
-            ]
-            pd.DataFrame(sample_costs, columns=costs_columns).to_csv(costs_db, index=False)
-            
-    except Exception as e:
-        logging.error(f"Error initializing data files: {str(e)}")
-        st.error("Failed to initialize data files")
-
-initialize_data_files()
 
 # ====== AUTHENTICATION ======
 def authenticate_user():
@@ -129,13 +49,17 @@ if not authenticate_user():
 def load_data():
     """Load all application data with caching"""
     try:
-        patients_df, visits_df, resources_df, costs_df = load_all_data()
-        
+        # Replace with actual CSV/database load in production
+        patients_df = pd.DataFrame(columns=['name', 'doc_number', 'doc_type', 'nationality', 'result', 'legal_status', 'timestamp'])
+        visits_df = pd.DataFrame(columns=['patient_name', 'visit_date', 'diagnosis', 'treatment', 'cost', 'hospital', 'ward'])
+        resources_df = pd.DataFrame(columns=['hospital', 'ward', 'total_beds', 'available_beds', 'medications', 'medication_stock', 'doctors', 'nurses'])
+        costs_df = pd.DataFrame(columns=['date', 'amount'])
+
         # Ensure required columns exist with proper defaults
         patients_df['name'] = patients_df['name'].fillna('Unknown')
         patients_df['doc_number'] = patients_df['doc_number'].fillna('')
-        
-        # Fix status errors - ensure nationality matches document type
+
+        # Fix status errors
         for idx, row in patients_df.iterrows():
             if row['doc_type'] == 'Passport' and row['nationality'] == 'South African':
                 patients_df.at[idx, 'result'] = 'Needs Verification'
@@ -143,20 +67,18 @@ def load_data():
             elif row['doc_type'] == 'RSA ID' and row['nationality'] != 'South African':
                 patients_df.at[idx, 'result'] = 'Needs Verification'
                 patients_df.at[idx, 'legal_status'] = 'Pending'
-        
-        # Ensure resources data has all required columns
+
         required_resource_cols = ['hospital', 'ward', 'total_beds', 'available_beds', 
-                                'medications', 'medication_stock', 'doctors', 'nurses']
+                                 'medications', 'medication_stock', 'doctors', 'nurses']
         for col in required_resource_cols:
             if col not in resources_df.columns:
                 resources_df[col] = '' if col in ['medications', 'doctors', 'nurses'] else 0
-        
-        # Process dates
+
         visits_df['visit_date'] = pd.to_datetime(
             visits_df.get('visit_date', datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d')),
             errors='coerce'
         ).dt.strftime('%Y-%m-%d')
-        
+
         costs_df['date'] = pd.to_datetime(
             costs_df.get('date', datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d')),
             errors='coerce'
@@ -164,9 +86,9 @@ def load_data():
         costs_df = costs_df[costs_df['date'].notna()]
         costs_df['date'] = costs_df['date'].dt.strftime('%Y-%m-%d')
         costs_df['amount'] = pd.to_numeric(costs_df.get('amount', 0), errors='coerce')
-        
+
         return patients_df, visits_df, resources_df, costs_df
-        
+
     except Exception as e:
         logging.error(f"Error loading data: {str(e)}")
         st.error("Failed to load application data")
@@ -177,9 +99,6 @@ try:
 except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     st.stop()
-
-# Get real-time metrics for sidebar
-metrics = get_realtime_metrics(patients_df, visits_df, resources_df)
 
 # ====== UI CONFIG ======
 st.set_page_config(layout="wide", page_title="Batho Pele Hospital System")
@@ -210,7 +129,6 @@ with st.sidebar:
     st.title(f"Welcome {st.session_state.username}")
     st.divider()
     
-    # Navigation Menu
     nav_option = st.radio(
         "Navigation Menu",
         ["🏠 Dashboard", "📋 Patient Intake", "👥 Patient Search", "🏥 Resource Monitoring"],
@@ -220,39 +138,27 @@ with st.sidebar:
     
     st.divider()
     st.subheader("Patient Metrics")
-    
-    # Calculate patient metrics
     sa_patients = len(patients_df[patients_df['nationality'] == 'South African'])
     foreign_patients = len(patients_df[patients_df['nationality'] != 'South African'])
     needs_referral = len(patients_df[patients_df['legal_status'] == 'Pending'])
-    
-    # Clickable metrics - store which one was clicked in session state
-    if st.button(f"SA Patients: {sa_patients}", key="sa_patients_btn", 
-                use_container_width=True, help="Click to view South African patients"):
+
+    if st.button(f"SA Patients: {sa_patients}", key="sa_patients_btn", use_container_width=True):
         st.session_state.patient_metric_clicked = "sa_patients"
-    
-    if st.button(f"🌍 Foreign Nationals: {foreign_patients}", key="foreign_patients_btn", 
-                use_container_width=True, help="Click to view foreign national patients"):
+    if st.button(f"🌍 Foreign Nationals: {foreign_patients}", key="foreign_patients_btn", use_container_width=True):
         st.session_state.patient_metric_clicked = "foreign_patients"
-    
-    if st.button(f"⚠️ Needs Referral: {needs_referral}", key="referral_patients_btn", 
-                use_container_width=True, help="Click to view patients needing referral"):
+    if st.button(f"⚠️ Needs Referral: {needs_referral}", key="referral_patients_btn", use_container_width=True):
         st.session_state.patient_metric_clicked = "needs_referral"
-    
+
     st.divider()
     st.subheader("Resource Monitoring")
-    
-    # Calculate resource metrics
     total_beds = resources_df['available_beds'].sum()
     med_stock = sum(int(x) for med in resources_df['medication_stock'] for x in str(med).split(',') if x.isdigit())
     doctors = sum(len(str(x).split(',')) for x in resources_df['doctors'])
     nurses = sum(len(str(x).split(',')) for x in resources_df['nurses'])
-    
-    # Resource summary
+
     with st.expander("🏥 Beds by Ward"):
         for _, ward in resources_df.iterrows():
             st.markdown(f"**{ward['ward']}**: {ward['available_beds']}/{ward['total_beds']} available")
-    
     with st.expander("💊 Medication Stock"):
         all_meds = {}
         for _, ward in resources_df.iterrows():
@@ -261,10 +167,8 @@ with st.sidebar:
             for med, stock in zip(meds, stocks):
                 if med.strip():
                     all_meds[med.strip()] = all_meds.get(med.strip(), 0) + int(stock.strip() if stock.strip().isdigit() else 0)
-        
         for med, stock in all_meds.items():
             st.markdown(f"**{med}**: {stock}")
-    
     with st.expander("👨‍⚕️ Staff on Duty"):
         all_doctors = set()
         all_nurses = set()
@@ -273,15 +177,12 @@ with st.sidebar:
             nurses = str(ward['nurses']).split(',')
             all_doctors.update([d.strip() for d in doctors if d.strip()])
             all_nurses.update([n.strip() for n in nurses if n.strip()])
-        
         st.markdown("**Doctors:**")
         for doctor in sorted(all_doctors):
             st.markdown(f"- {doctor}")
-        
         st.markdown("**Nurses:**")
         for nurse in sorted(all_nurses):
             st.markdown(f"- {nurse}")
-    
     st.divider()
     if st.button("Logout", use_container_width=True):
         st.session_state.authenticated = False
@@ -299,42 +200,28 @@ current_page = page_mapping.get(nav_option, "dashboard")
 if current_page == "dashboard":
     with st.container():
         st.markdown('<div class="header"><h1>🏥 Batho Pele Hospital System</h1></div>', unsafe_allow_html=True)
-        
-        # Display patient lists if a metric was clicked
         if st.session_state.get('patient_metric_clicked'):
             if st.session_state.patient_metric_clicked == "sa_patients":
                 st.subheader("🇿🇦 South African Patients")
                 sa_patients = patients_df[patients_df['nationality'] == 'South African']
                 st.dataframe(sa_patients[['name', 'doc_number', 'timestamp']], use_container_width=True)
-            
             elif st.session_state.patient_metric_clicked == "foreign_patients":
                 st.subheader("🌍 Foreign National Patients")
                 foreign_patients = patients_df[patients_df['nationality'] != 'South African']
                 st.dataframe(foreign_patients[['name', 'nationality', 'doc_type', 'doc_number']], use_container_width=True)
-            
             elif st.session_state.patient_metric_clicked == "needs_referral":
                 st.subheader("⚠️ Patients Needing Referral to Home Affairs")
                 referral_patients = patients_df[patients_df['legal_status'] == 'Pending']
                 st.dataframe(referral_patients[['name', 'nationality', 'doc_type', 'doc_number', 'timestamp']], use_container_width=True)
-            
             if st.button("Clear Filter"):
                 st.session_state.patient_metric_clicked = None
                 st.rerun()
-        
-        try:
-            display_dashboard(patients_df, visits_df, resources_df, costs_df)
-        except Exception as e:
-            st.error(f"Error displaying dashboard: {str(e)}")
-            st.write("## Patients Overview")
-            st.dataframe(patients_df.head(3), use_container_width=True)
-            st.write("## Resources Overview")
-            st.dataframe(resources_df.head(3), use_container_width=True)
+        # Optionally add dashboard widgets here
 
 elif current_page == "patient_intake":
     with st.container():
         st.markdown('<div class="header"><h1>📋 Patient Intake</h1></div>', unsafe_allow_html=True)
-        
-        # ========== COMPREHENSIVE TREATMENT PLANS ==========
+        # === TREATMENT PLANS DICTIONARY ===
         treatment_plans = {
             "Hypertension": {
                 "plan": "Lifestyle changes (salt reduction, exercise, stress management) and medication based on severity",
@@ -424,59 +311,41 @@ elif current_page == "patient_intake":
                 }
             }
         }
-
-        # ========== PATIENT INTAKE FORM ==========
         st.title("🏥 Patient Intake System")
-
-        # First form - Patient Information
         with st.expander("📋 Patient Information", expanded=True):
             with st.form("patient_intake_form"):
                 cols = st.columns(2)
-                
-                # Column 1
                 name = cols[0].text_input("Full Name*", placeholder="First Last")
                 nationality = cols[0].selectbox("Nationality*", 
-                                              ["South African", "Zimbabwean", "Malawian", "Mozambican", "Other"])
+                                                ["South African", "Zimbabwean", "Malawian", "Mozambican", "Other"])
                 doc_number = cols[0].text_input("Document Number*", placeholder="ID/Passport Number")
-                
-                # Column 2
                 dob_col = cols[1]
                 dob_col.markdown("Date of Birth*")
                 dob_known = dob_col.checkbox("Known DOB", value=True, key="dob_known")
-                
                 if dob_known:
-                    dob = dob_col.date_input("", 
-                                           min_value=datetime(1900,1,1), 
-                                           max_value=datetime.now(),
-                                           label_visibility="collapsed")
+                    dob = dob_col.date_input("", min_value=datetime(1900,1,1), max_value=datetime.now(), label_visibility="collapsed")
                 else:
                     dob_col.markdown("Using estimated age (DOB unknown)")
                     age = dob_col.number_input("Estimated Age", min_value=0, max_value=120, value=30)
                     dob = (datetime.now() - timedelta(days=age*365)).date()
-                
                 doc_type = cols[1].selectbox("Document Type*", ["RSA ID", "Passport", "Asylum Seeker Permit"])
                 medical_aid = cols[1].text_input("Medical Aid Number (if applicable)", placeholder="Leave blank if none")
                 conditions = st.text_area("Known Medical Conditions", placeholder="List any known conditions")
-                
                 submitted = st.form_submit_button("Submit Patient Information")
-                
             if submitted:
                 if not name or not doc_number:
                     st.error("Please fill in all required fields (marked with *)")
                 else:
                     try:
-                        # Verification logic
                         verification_result = {
                             'result': 'Valid',
                             'legal_status': 'Valid',
                             'details': 'Automatically verified'
                         }
-                        
                         if (doc_type == 'RSA ID' and nationality != 'South African') or \
                            (doc_type == 'Passport' and nationality == 'South African'):
                             verification_result['result'] = 'Needs Verification'
                             verification_result['legal_status'] = 'Pending'
-                            
                         patient_data = {
                             "name": name,
                             "dob": dob.strftime('%Y-%m-%d') if dob_known else f"Estimated age: {age}",
@@ -488,97 +357,64 @@ elif current_page == "patient_intake":
                             "timestamp": datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d %H:%M:%S'),
                             **verification_result
                         }
-                        
                         st.session_state.last_patient = patient_data
                         st.success("Patient record created successfully!")
                         st.session_state.show_treatment_form = True
-
                     except Exception as e:
                         logging.error(f"Error processing patient: {str(e)}")
                         st.error(f"Error processing patient: {str(e)}")
-
-        # Second form - Treatment Information
         if st.session_state.get('show_treatment_form', False) and 'last_patient' in st.session_state:
             patient = st.session_state.last_patient
             with st.expander("🩺 Treatment Information", expanded=True):
-                with st.form("treatment_form"):
-                    st.write("### Diagnosis and Treatment")
-                    
-                    diagnosis = st.selectbox("Diagnosis*", list(treatment_plans.keys()) + ["Other"])
-                    
-                    # Auto-populate treatment plan if standard diagnosis
-                    if diagnosis in treatment_plans:
-                        treatment_plan = st.text_area(
-                            "Treatment Plan*", 
-                            value=treatment_plans[diagnosis]["plan"],
-                            key="treatment_plan"
-                        )
-                        
-                        # Display recommended medications
-                        st.write("### Recommended Medications")
-                        for med in treatment_plans[diagnosis]["medications"]:
-                            st.markdown(f"• **{med['name']}**: {med['dosage']} {med['frequency']}")
-                        
-                        # Auto-calculate cost based on patient status
-                        if patient['nationality'] == 'South African':
-                            cost = treatment_plans[diagnosis]["costs"]["SA Residents"]
-                        elif patient['legal_status'] == 'Valid':
-                            cost = treatment_plans[diagnosis]["costs"]["Legal Immigrants"]
-                        else:
-                            cost = treatment_plans[diagnosis]["costs"]["Illegal Immigrants"]
-                    else:
-                        treatment_plan = st.text_area("Treatment Plan*")
-                        cost = st.number_input("Treatment Cost (R)*", min_value=0, value=1500)
-                    
-                    # Medication prescription
-                    st.write("### Medication Prescribed")
-                    med_cols = st.columns(3)
-                    medication = med_cols[0].text_input("Medication name", placeholder="Enter medication")
-                    dosage = med_cols[1].text_input("Dosage", placeholder="e.g., 500mg")
-                    frequency = med_cols[2].text_input("Frequency", placeholder="e.g., 3x daily")
-                    
+                diagnosis = st.selectbox("Diagnosis*", list(treatment_plans.keys()) + ["Other"], key="diagnosis_select")
+                if diagnosis != "Other":
+                    treatment_plan = treatment_plans[diagnosis]["plan"]
+                    cost = (
+                        treatment_plans[diagnosis]["costs"]["SA Residents"]
+                        if patient['nationality'] == 'South African'
+                        else treatment_plans[diagnosis]["costs"]["Legal Immigrants"]
+                        if patient['legal_status'] == 'Valid'
+                        else treatment_plans[diagnosis]["costs"]["Illegal Immigrants"]
+                    )
+                    st.text_area("Treatment Plan*", value=treatment_plan, key="treatment_plan_area")
                     st.write(f"### Estimated Cost: R{cost:,.2f}")
-                    notes = st.text_area("Additional Notes", placeholder="Any special instructions")
-                    
-                    treatment_submitted = st.form_submit_button("Submit Treatment Details")
-                    
-                    if treatment_submitted:
-                        if not diagnosis or not treatment_plan:
-                            st.error("Please fill in required diagnosis and treatment fields")
-                        else:
-                            try:
-                                # Create visit record
-                                visit_data = {
-                                    "patient_name": patient['name'],
-                                    "diagnosis": diagnosis,
-                                    "treatment": treatment_plan,
-                                    "medication": f"{medication} {dosage} {frequency}" if medication else "None",
-                                    "cost": cost,
-                                    "notes": notes,
-                                    "timestamp": datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d %H:%M:%S')
-                                }
-                                
-                                # Here you would save to your database (commented for example)
-                                # save_to_database(visit_data)
-                                
-                                st.success("Treatment details saved successfully!")
-                                st.session_state.treatment_details = visit_data
-                                st.session_state.show_actions = True
-                                
-                            except Exception as e:
-                                logging.error(f"Error saving treatment: {str(e)}")
-                                st.error(f"Error saving treatment: {str(e)}")
-
-        # Action buttons section
+                    st.write("### Recommended Medications")
+                    for med in treatment_plans[diagnosis]["medications"]:
+                        st.markdown(f"• **{med['name']}**: {med['dosage']} {med['frequency']}")
+                else:
+                    treatment_plan = st.text_area("Treatment Plan*")
+                    cost = st.number_input("Treatment Cost (R)*", min_value=0, value=1500)
+                med_cols = st.columns(3)
+                medication = med_cols[0].text_input("Medication name", placeholder="Enter medication")
+                dosage = med_cols[1].text_input("Dosage", placeholder="e.g., 500mg")
+                frequency = med_cols[2].text_input("Frequency", placeholder="e.g., 3x daily")
+                notes = st.text_area("Additional Notes", placeholder="Any special instructions")
+                if st.button("Submit Treatment Details"):
+                    if not diagnosis or not treatment_plan:
+                        st.error("Please fill in required diagnosis and treatment fields")
+                    else:
+                        try:
+                            visit_data = {
+                                "patient_name": patient['name'],
+                                "diagnosis": diagnosis,
+                                "treatment": treatment_plan,
+                                "medication": f"{medication} {dosage} {frequency}" if medication else "None",
+                                "cost": cost,
+                                "notes": notes,
+                                "timestamp": datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d %H:%M:%S')
+                            }
+                            st.success("Treatment details saved successfully!")
+                            st.session_state.treatment_details = visit_data
+                            st.session_state.show_actions = True
+                        except Exception as e:
+                            logging.error(f"Error saving treatment: {str(e)}")
+                            st.error(f"Error saving treatment: {str(e)}")
         if st.session_state.get('show_actions', False):
             st.markdown("---")
             st.subheader("Patient Actions")
-            
             action_cols = st.columns(3)
             patient = st.session_state.last_patient
             treatment = st.session_state.treatment_details
-            
-            # Generate Invoice button
             if action_cols[0].button("📄 Generate Invoice"):
                 with st.expander("🧾 Invoice", expanded=True):
                     st.subheader(f"Invoice for {patient['name']}")
@@ -590,8 +426,6 @@ elif current_page == "patient_intake":
                     if treatment['medication'] != "None":
                         st.write(f"**Medication:** {treatment['medication']}")
                     st.write(f"**Total Cost:** R{treatment['cost']:,.2f}")
-                    
-                    # Download button
                     invoice_text = f"""
                     BATHO PELE HEALTHCARE INITIATIVE
                     ---------------------------------
@@ -611,14 +445,9 @@ elif current_page == "patient_intake":
                         file_name=f"invoice_{patient['name']}_{datetime.now(SA_TIMEZONE).strftime('%Y%m%d')}.txt",
                         mime="text/plain"
                     )
-            
-            # Referral button (conditionally shown)
             if patient.get('legal_status') == 'Pending':
                 if action_cols[1].button("⚠️ Refer to Home Affairs"):
-                    # Here you would update your database
                     st.success(f"Patient {patient['name']} referred to Home Affairs")
-            
-            # View Patient Record button
             if action_cols[2].button("👤 View Full Record"):
                 with st.expander("Patient Record Summary", expanded=True):
                     st.write(f"**Name:** {patient['name']}")
@@ -635,15 +464,11 @@ elif current_page == "patient_intake":
 elif current_page == "patient_search":
     with st.container():
         st.markdown('<div class="header"><h1>👥 Patient Search</h1></div>', unsafe_allow_html=True)
-        
-        # Search fields
         search_cols = st.columns(3)
         name_search = search_cols[0].text_input("Name")
         id_search = search_cols[1].text_input("ID/Passport Number")
         nationality_filter = search_cols[2].selectbox("Nationality", ["All"] + list(patients_df['nationality'].dropna().unique()))
-        
         filtered_patients = patients_df.copy()
-        
         if name_search:
             filtered_patients = filtered_patients[
                 filtered_patients['name'].notna() & 
@@ -656,10 +481,8 @@ elif current_page == "patient_search":
             ]
         if nationality_filter != "All":
             filtered_patients = filtered_patients[filtered_patients['nationality'] == nationality_filter]
-        
         if not filtered_patients.empty:
             st.subheader(f"Found {len(filtered_patients)} patients")
-            
             show_cols = ['name', 'nationality', 'doc_type', 'doc_number', 'legal_status', 'timestamp']
             st.dataframe(
                 filtered_patients[show_cols].rename(columns={
@@ -673,11 +496,8 @@ elif current_page == "patient_search":
                 use_container_width=True,
                 hide_index=True
             )
-            
-            # Show visit history for selected patient
             selected_patient = st.selectbox("Select patient to view history", filtered_patients['name'].unique())
             patient_visits = visits_df[visits_df['patient_name'] == selected_patient]
-            
             if not patient_visits.empty:
                 st.subheader(f"Visit History for {selected_patient}")
                 st.dataframe(
@@ -695,93 +515,80 @@ elif current_page == "patient_search":
 elif current_page == "resource_monitoring":
     with st.container():
         st.markdown('<div class="header"><h1>🏥 Resource Monitoring</h1></div>', unsafe_allow_html=True)
-        
-        st.subheader("🏨 Hospital Resources by Ward")
-        try:
-            if not resources_df.empty:
-                hospitals = resources_df['hospital'].unique()
-                selected_hospital = st.selectbox("Select Hospital", hospitals)
-                
-                hospital_resources = resources_df[resources_df['hospital'] == selected_hospital]
-                
-                for _, ward_data in hospital_resources.iterrows():
-                    with st.expander(f"🏥 {ward_data['ward']} Ward", expanded=True):
-                        cols = st.columns([1, 2, 2, 1])
-                        
-                        # Beds
-                        total_beds = int(ward_data.get('total_beds', 0))
-                        available_beds = int(ward_data.get('available_beds', 0))
-                        bed_percentage = (available_beds / total_beds * 100) if total_beds > 0 else 0
-                        cols[0].metric("Beds", f"{available_beds}/{total_beds}", f"{bed_percentage:.1f}% available")
-                        
-                        # Detailed bed information
-                        with cols[1]:
-                            st.markdown("**Bed Availability**")
-                            st.markdown(f"**Total Beds:** {total_beds}")
-                            st.markdown(f"**Available Beds:** {available_beds}")
-                        
-                        # Staff information
-                        with cols[2]:
-                            st.markdown("**Staff on Duty**")
-                            doctors = str(ward_data.get('doctors', '')).split(',')
-                            nurses = str(ward_data.get('nurses', '')).split(',')
-                            
-                            st.markdown("**Doctors:**")
-                            for doctor in doctors:
-                                if doctor.strip():
-                                    st.markdown(f"- {doctor.strip()}")
-                            
-                            st.markdown("**Nurses:**")
-                            for nurse in nurses:
-                                if nurse.strip():
-                                    st.markdown(f"- {nurse.strip()}")
-                        
-                        # Medication information
-                        with cols[3]:
-                            st.markdown("**Medications**")
-                            medications = str(ward_data.get('medications', '')).split(',')
-                            stocks = str(ward_data.get('medication_stock', '')).split(',')
-                            
-                            for med, stock in zip(medications, stocks):
-                                if med.strip():
-                                    st.markdown(f"- {med.strip()}: {stock.strip()}")
-                
-                # Hospital summary
-                st.subheader("🏥 Hospital Summary")
-                summary_cols = st.columns(3)
-                
-                # Total beds
-                total_hospital_beds = hospital_resources['total_beds'].sum()
-                available_hospital_beds = hospital_resources['available_beds'].sum()
-                summary_cols[0].metric("Total Beds", 
-                                     f"{available_hospital_beds}/{total_hospital_beds}",
-                                     f"{available_hospital_beds/total_hospital_beds*100:.1f}% available" if total_hospital_beds > 0 else "0%")
-                
-                # Staff count
-                doctors_count = sum(len(str(x).split(',')) for x in hospital_resources['doctors'])
-                nurses_count = sum(len(str(x).split(',')) for x in hospital_resources['nurses'])
-                summary_cols[1].metric("Staff On Duty", f"{doctors_count} Doctors, {nurses_count} Nurses")
-                
-                # Medication stock
-                total_meds = sum(int(x) for med in hospital_resources['medication_stock'] for x in str(med).split(',') if x.isdigit())
-                summary_cols[2].metric("Total Medication Stock", total_meds)
-                
-                # Current patients
-                st.subheader("Current Patients by Ward")
-                current_visits = visits_df[visits_df['hospital'] == selected_hospital]
-                if not current_visits.empty:
-                    ward_patients = current_visits.groupby('ward')['patient_name'].count().reset_index()
-                    ward_patients.columns = ['Ward', 'Patient Count']
-                    st.dataframe(ward_patients, use_container_width=True)
-                else:
-                    st.info("No current patients in this hospital")
-                
+        st.subheader("Daily Hospital Resource Metrics")
+        if resources_df.empty:
+            st.warning("No resource data available.")
+        else:
+            hospitals = resources_df['hospital'].dropna().unique()
+            selected_hospital = st.selectbox("Select Hospital", hospitals)
+            hospital_resources = resources_df[resources_df['hospital'] == selected_hospital]
+            resource_types = ["Beds", "Doctors", "Nurses", "Medications"]
+            selected_resource = st.selectbox("Select resource to predict", resource_types)
+            forecast = predict_resources(selected_resource.lower())
+            if forecast is not None:
+                st.write(f"### Next 7 Days Forecast for {selected_resource}")
+                st.dataframe(forecast, use_container_width=True)
             else:
-                st.warning("No resource data available")
-                
-        except Exception as e:
-            logging.error(f"Error displaying resource data: {str(e)}")
-            st.error(f"Error displaying resource data: {str(e)}")
+                st.info("Not enough historical data for prediction.")
+            for _, ward_data in hospital_resources.iterrows():
+                ward_name = ward_data.get('ward', 'Unknown')
+                st.markdown(f"### 🏥 Ward: {ward_name}")
+                cols = st.columns([1, 2, 2, 2])
+                total_beds = int(ward_data.get('total_beds', 0))
+                available_beds = int(ward_data.get('available_beds', 0))
+                bed_percentage = (available_beds / total_beds * 100) if total_beds > 0 else 0
+                cols[0].metric("Available Beds", f"{available_beds}/{total_beds}", f"{bed_percentage:.1f}% available")
+                doctors = [d.strip() for d in str(ward_data.get('doctors', '')).split(',') if d.strip()]
+                nurses = [n.strip() for n in str(ward_data.get('nurses', '')).split(',') if n.strip()]
+                cols[1].markdown("**Doctors on Duty:**")
+                for doctor in doctors:
+                    cols[1].markdown(f"- {doctor}")
+                cols[1].markdown("**Nurses on Duty:**")
+                for nurse in nurses:
+                    cols[1].markdown(f"- {nurse}")
+                medications = [m.strip() for m in str(ward_data.get('medications', '')).split(',') if m.strip()]
+                stocks = [s.strip() for s in str(ward_data.get('medication_stock', '')).split(',') if s.strip()]
+                med_stock_map = {}
+                for med, stock in zip(medications, stocks):
+                    med_stock_map[med] = int(stock) if stock.isdigit() else stock
+                cols[2].markdown("**Medication Stock:**")
+                for med, stock in med_stock_map.items():
+                    cols[2].markdown(f"- {med}: {stock}")
+                today_str = datetime.now(SA_TIMEZONE).strftime('%Y-%m-%d')
+                today_patients = visits_df[
+                    (visits_df['hospital'] == selected_hospital) &
+                    (visits_df['ward'] == ward_name) &
+                    (visits_df['visit_date'] == today_str)
+                ]
+                cols[3].markdown("**Patients Admitted Today:**")
+                if not today_patients.empty:
+                    for pname in today_patients['patient_name']:
+                        cols[3].markdown(f"- {pname}")
+                else:
+                    cols[3].markdown("_No new patients today_")
+            st.subheader("Hospital Daily Summary")
+            total_hospital_beds = hospital_resources['total_beds'].sum()
+            available_hospital_beds = hospital_resources['available_beds'].sum()
+            st.metric("Total Beds Available", f"{available_hospital_beds}/{total_hospital_beds}")
+            doctors_names = set()
+            nurses_names = set()
+            medication_stock_total = {}
+            for _, ward in hospital_resources.iterrows():
+                doctors_names.update([d.strip() for d in str(ward.get('doctors', '')).split(',') if d.strip()])
+                nurses_names.update([n.strip() for n in str(ward.get('nurses', '')).split(',') if n.strip()])
+                meds = [m.strip() for m in str(ward.get('medications', '')).split(',') if m.strip()]
+                stocks = [s.strip() for s in str(ward.get('medication_stock', '')).split(',') if s.strip()]
+                for med, stock in zip(meds, stocks):
+                    medication_stock_total[med] = medication_stock_total.get(med, 0) + (int(stock) if stock.isdigit() else 0)
+            st.write("**Doctors on Duty Today:**")
+            for d in sorted(doctors_names):
+                st.write(f"- {d}")
+            st.write("**Nurses on Duty Today:**")
+            for n in sorted(nurses_names):
+                st.write(f"- {n}")
+            st.write("**Total Medication Stock Today:**")
+            for med, stock in medication_stock_total.items():
+                st.write(f"- {med}: {stock}")
 
 # ====== FOOTER ======
 st.markdown("---")

@@ -1,2 +1,2 @@
-beds_available,medication_stock,staff_available,utilization
+display_resource_monitoring(resources_df, visits_df)
 40,9,28,76

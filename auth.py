@@ -1,5 +1,7 @@
-import streamlit as st
+# auth.py (updated)
 import hashlib
+import streamlit as st
+from auth_enhancer import secure_validate  # <-- New import
 
 def authenticate_user():
     if not st.session_state.get('authenticated'):
@@ -8,7 +10,6 @@ def authenticate_user():
             
             cols = st.columns([1, 2, 1])
             with cols[1]:
-                # ✅ Add the logo at the top center of the form
                 st.image("assets/Batho_pele.png", use_container_width=True)
 
                 with st.form("login"):
@@ -16,14 +17,16 @@ def authenticate_user():
                     pwd = st.text_input("Password", type="password")
                     
                     if st.form_submit_button("Login"):
-                        if validate_credentials(user, pwd):
+                        if secure_validate(user, pwd):  # <-- Changed to use enhanced validation
                             st.session_state.authenticated = True
                             st.rerun()
                         else:
-                            st.error("Invalid credentials")
+                            # Error message handled by secure_validate
+                            pass
                 return False
     return True
 
+# Keep original validate_credentials for reference (but it won't be used)
 def validate_credentials(username, password):
-    # Replace with proper authentication in production
     return username == "Mpho_Hlalele" and hashlib.sha256(password.encode()).hexdigest() == "907fbbb4869dc75cb3d3493f580adb2bedbf5da51f5d60465722941a9042fa9c"
+
